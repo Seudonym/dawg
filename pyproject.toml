@@ -8,7 +8,8 @@ dependencies = [
 "pysilero-vad",
 "pyaudio",
 "numpy",
+"typer",
 ]
 
 [project.scripts]
-dawg = "main:main"
+dawg = "dawg.cli:main"

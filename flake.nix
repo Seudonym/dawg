@@ -22,8 +22,12 @@
         pkgs.mkShell {
           packages = [
             pythonEnv
-            pkgs.ffmpeg
-          ];
+          ]
+          ++ (with pkgs; [
+            ffmpeg
+            basedpyright
+            black
+          ]);
         };
 
       packages.x86_64-linux.default =
