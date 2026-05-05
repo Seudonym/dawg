@@ -3,6 +3,7 @@ import time
 from pathlib import Path
 
 from dawg.config.models import Config
+from dawg.audio.stt import STT
 from dawg.state.models import AppState, DaemonState
 from dawg.audio.capture import AudioCapture
 from dawg.audio.vad import VAD
@@ -16,8 +17,10 @@ class Daemon:
         self.state: AppState = AppState(config=config)
         self.audio: AudioCapture = AudioCapture()
         self.vad = VAD(sample_rate=self.audio.sample_rate)
+        self.stt = STT()
         self._running = False
         self._silence_chunks_for_vad = 20
+        self._listening_chunks: list = []
         logger.info("daemon initialized successfully")
 
     def start(self) -> None:
@@ -36,9 +39,15 @@ class Daemon:
         logger.info("shutting down daemon")
 
     def start_listen(self) -> None:
+        self._listening_chunks = []
         self._set_state(DaemonState.LISTENING)
 
     def stop_listen(self) -> None:
+        chunk_count = len(self._listening_chunks)
+        logger.info("listening stopped: chunk_count=%s", chunk_count)
+        transcript = self.stt.transcribe_chunks(self._listening_chunks)
+        logger.info("transcript: %r", transcript)
+        self._listening_chunks = []
         self._set_state(DaemonState.VAD)
 
     def _set_state(self, next_state: DaemonState) -> None:
@@ -63,6 +72,7 @@ class Daemon:
 
                 # LISTENING branch
                 elif self.state.mode == DaemonState.LISTENING:
+                    self._listening_chunks.append(chunk.copy())
                     if has_speech:
                         silent_chunk_count = 0
                     else:
