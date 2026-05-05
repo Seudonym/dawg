@@ -17,6 +17,7 @@ class Daemon:
         self.audio: AudioCapture = AudioCapture()
         self.vad = VAD(sample_rate=self.audio.sample_rate)
         self._running = False
+        self._silence_chunks_for_vad = 20
         logger.info("daemon initialized successfully")
 
     def start(self) -> None:
@@ -48,15 +49,27 @@ class Daemon:
         logger.info("state change: %s -> %s", previous_state, next_state)
 
     def _run_loop(self) -> None:
-        while self._running:
-            saw_speech = False
-            for chunk in self.audio.get_chunks():
-                if self.state.mode == DaemonState.VAD and self.vad.is_speech(chunk):
-                    saw_speech = True
-                    break
+        silent_chunk_count = 0
 
-            if saw_speech:
-                self.start_listen()
+        while self._running:
+            for chunk in self.audio.get_chunks():
+                has_speech = self.vad.is_speech(chunk)
+
+                # VAD branch
+                if self.state.mode == DaemonState.VAD:
+                    if has_speech:
+                        silent_chunk_count = 0
+                        self.start_listen()
+
+                # LISTENING branch
+                elif self.state.mode == DaemonState.LISTENING:
+                    if has_speech:
+                        silent_chunk_count = 0
+                    else:
+                        silent_chunk_count += 1
+                        if silent_chunk_count >= self._silence_chunks_for_vad:
+                            self.stop_listen()
+                            silent_chunk_count = 0
 
             time.sleep(0.01)
 
