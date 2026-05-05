@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class STT:
     def __init__(self) -> None:
         self.model = WhisperModel(
-            model_size_or_path="small.en", device="cpu", compute_type="float32"
+            model_size_or_path="medium.en", device="cuda", compute_type="float32"
         )
 
     def transcribe_chunks(self, chunks: list[np.ndarray]) -> str:
