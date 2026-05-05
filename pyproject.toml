@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-dawg = "dawg.cli:main"
+dawg = "dawg.daemon:main"
 
 [build-system]
 requires = ["hatchling"]

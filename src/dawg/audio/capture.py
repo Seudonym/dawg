@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class AudioCapture:
-    def __init__(self, sample_rate: int = 16000, chunk_size: int = 1024):
+    def __init__(self, sample_rate: int = 16000, chunk_size: int = 512):
         self.sample_rate: int = sample_rate
         self.chunk_size: int = chunk_size
         self.pa: pyaudio.PyAudio = pyaudio.PyAudio()
