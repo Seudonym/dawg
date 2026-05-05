@@ -17,7 +17,7 @@ def run():
     config = Config(runtime_dir=Path("runtime"), memory_dir=Path("memory"))
     logger = logging.getLogger("dawg.daemon")
 
-    daemon = Daemon(config=config, logger=logger)
+    daemon = Daemon(config=config)
     try:
         daemon.start()
         while True:
