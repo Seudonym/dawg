@@ -5,7 +5,7 @@ description = "A minimal pyproject.toml"
 authors = [ ]
 requires-python = ">=3.13"
 dependencies = [
-"pysilero-vad",
+"silero-vad",
 "pyaudio",
 "numpy",
 "typer",
@@ -13,3 +13,7 @@ dependencies = [
 
 [project.scripts]
 dawg = "dawg.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

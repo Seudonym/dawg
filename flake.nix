@@ -1,39 +1,41 @@
 {
   description = "DAWG flake";
-
-  inputs.pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
-  inputs.pyproject-nix.inputs.nixpkgs.follows = "nixpkgs";
-
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
   outputs =
-    { nixpkgs, pyproject-nix, ... }:
+    { nixpkgs, ... }:
     let
-      project = pyproject-nix.lib.project.loadPyproject {
-        projectRoot = ./.;
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config = {
+          allowUnfree = true;
+        };
       };
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      python = pkgs.python313;
     in
     {
-      devShells.x86_64-linux.default =
-        let
-          arg = project.renderers.withPackages { inherit python; };
-          pythonEnv = python.withPackages arg;
-        in
-        pkgs.mkShell {
-          packages = [
-            pythonEnv
-          ]
-          ++ (with pkgs; [
-            ffmpeg
-            basedpyright
-            black
-          ]);
-        };
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = with pkgs; [
+          uv
+          basedpyright
+          black
 
-      packages.x86_64-linux.default =
-        let
-          attrs = project.renderers.buildPythonPackage { inherit python; };
-        in
-        python.pkgs.buildPythonPackage (attrs);
+          ffmpeg
+          portaudio
+
+          gcc
+          stdenv.cc.cc.lib
+        ];
+
+        shellHook = ''
+          export LD_LIBRARY_PATH=${
+            pkgs.lib.makeLibraryPath [
+              pkgs.stdenv.cc.cc
+            ]
+          }:$LD_LIBRARY_PATH
+        '';
+      };
+
     };
 }
