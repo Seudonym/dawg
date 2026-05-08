@@ -2,6 +2,7 @@ import logging
 import time
 from pathlib import Path
 
+from dawg.brain.agent import Agent
 from dawg.config.models import Config
 from dawg.audio.stt import STT
 from dawg.state.models import AppState, DaemonState
@@ -15,9 +16,14 @@ logger = logging.getLogger(__name__)
 class Daemon:
     def __init__(self, config: Config) -> None:
         self.state: AppState = AppState(config=config)
+
         self.audio: AudioCapture = AudioCapture()
         self.vad = VAD(sample_rate=self.audio.sample_rate)
         self.stt = STT()
+        self.agent = Agent(
+            "Be as concise and friendly as possible. avoid punctuation where unnecessary."
+        )
+
         self._running = False
         self._silence_chunks_for_vad = 20
         self._listening_chunks: list = []
@@ -48,7 +54,10 @@ class Daemon:
 
         self._set_state(DaemonState.TRANSCRIBING)
         transcript = self.stt.transcribe_chunks(self._listening_chunks)
-        logger.info("transcript: %r", transcript)
+        logger.info("human: %r", transcript)
+
+        reply = self.agent.respond(transcript)
+        logger.info("dawg: %r", reply)
 
         self._listening_chunks = []
         self._set_state(DaemonState.VAD)
