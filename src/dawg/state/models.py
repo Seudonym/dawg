@@ -7,6 +7,8 @@ from dawg.config.models import Config
 class DaemonState(StrEnum):
     VAD = "vad"
     LISTENING = "listening"
+    TRANSCRIBING = "transcribing"
+    REPLYING = "replying"
     STOPPED = "stopped"
 
 

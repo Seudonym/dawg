@@ -45,8 +45,11 @@ class Daemon:
     def stop_listen(self) -> None:
         chunk_count = len(self._listening_chunks)
         logger.info("listening stopped: chunk_count=%s", chunk_count)
+
+        self._set_state(DaemonState.TRANSCRIBING)
         transcript = self.stt.transcribe_chunks(self._listening_chunks)
         logger.info("transcript: %r", transcript)
+
         self._listening_chunks = []
         self._set_state(DaemonState.VAD)
 
