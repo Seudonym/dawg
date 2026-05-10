@@ -50,7 +50,7 @@ class Agent:
         data: ChatCompletionResponse = response.json()
         reply = data["choices"][0]["message"]["content"]
 
-        self._add_message("assistant", message)
+        self._add_message("assistant", reply)
 
         return reply
 
