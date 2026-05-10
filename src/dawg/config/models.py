@@ -6,3 +6,4 @@ from pathlib import Path
 class Config:
     runtime_dir: Path
     memory_dir: Path
+    system_prompt: Path

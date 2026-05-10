@@ -20,13 +20,11 @@ class Daemon:
         self.audio: AudioCapture = AudioCapture()
         self.vad = VAD(sample_rate=self.audio.sample_rate)
         self.stt = STT()
-        self.agent = Agent(
-            "Be as concise and friendly as possible. avoid punctuation where unnecessary."
-        )
+        self.agent = Agent(config.system_prompt.read_text())
 
         self._running = False
         self._silence_chunks_for_vad = 20
-        self._listening_chunks: list = []
+        self._listening_chunks = []
         logger.info("daemon initialized successfully")
 
     def start(self) -> None:
@@ -102,7 +100,11 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
-    config = Config(runtime_dir=Path("runtime"), memory_dir=Path("memory"))
+    config = Config(
+        runtime_dir=Path("runtime"),
+        memory_dir=Path("memory"),
+        system_prompt=Path(__file__).parent / "config/system_prompt.md",
+    )
     daemon = Daemon(config=config)
     try:
         daemon.start()
