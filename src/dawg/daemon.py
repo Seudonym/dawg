@@ -1,6 +1,7 @@
 import logging
 import time
 from pathlib import Path
+import os
 
 from dawg.brain.agent import Agent
 from dawg.config.models import Config
@@ -100,9 +101,14 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
+    cache_dir = os.environ["HOME"]
+    if not cache_dir:
+        logger.warning("$HOME is not set")
+    cache_dir = (Path(cache_dir) / ".cache") / "dawg"
+
     config = Config(
-        runtime_dir=Path("runtime"),
-        memory_dir=Path("memory"),
+        runtime_dir=cache_dir / Path("runtime"),
+        memory_dir=cache_dir / Path("memory"),
         system_prompt=Path(__file__).parent / "config/system_prompt.md",
     )
     daemon = Daemon(config=config)
