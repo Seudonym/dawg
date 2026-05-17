@@ -1,13 +1,13 @@
 import json
 import logging
-from typing import Callable
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionMessageToolCall,
-    ChatCompletionToolParam,
 )
+
+from dawg.tools import TOOL_REGISTRY, TOOLS
 
 
 logger = logging.getLogger(__name__)
@@ -19,29 +19,6 @@ def greet(name: str) -> str:
             "greeting": "Hello there! " + name,
         },
     )
-
-
-TOOLS: list[ChatCompletionToolParam] = [
-    {
-        "type": "function",
-        "function": {
-            "name": "greet",
-            "description": "Greet the user",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "Name of the user",
-                    },
-                },
-                "required": ["name"],
-            },
-        },
-    }
-]
-
-TOOL_REGISTRY: dict[str, Callable[..., str]] = {"greet": greet}
 
 
 class Agent:
