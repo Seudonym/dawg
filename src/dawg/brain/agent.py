@@ -1,58 +1,28 @@
 import logging
 from typing import Literal, TypedDict
-import requests
+from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
+
 
 logger = logging.getLogger(__name__)
-
-Role = Literal["system", "user", "assistant", "tool"]
-
-
-class ChatMessage(TypedDict):
-    role: Role
-    content: str
-
-
-class ChatPayload(TypedDict):
-    messages: list[ChatMessage]
-
-
-class Choice(TypedDict):
-    message: ChatMessage
-
-
-class ChatCompletionResponse(TypedDict):
-    choices: list[Choice]
 
 
 class Agent:
     def __init__(self, system_prompt: str) -> None:
-        self.session: requests.Session = requests.Session()
-        self.messages: list[ChatMessage] = [
-            ChatMessage(role="system", content=system_prompt)
+        self.client: OpenAI = OpenAI(
+            base_url="http://localhost:8080/v1", api_key="unused"
+        )
+        self.messages: list[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt}
         ]
 
-    def _payload(self) -> ChatPayload:
-        return {
-            "messages": [
-                {"role": m["role"], "content": m["content"]} for m in self.messages
-            ]
-        }
-
     def respond(self, message: str) -> str:
-        self._add_message("user", message)
-
-        response = self.session.post(
-            url="http://localhost:8080/v1/chat/completions",
-            json=self._payload(),
-            timeout=60,
+        self.messages.append({"role": "user", "content": message})
+        response = self.client.chat.completions.create(
+            model="local-model", messages=self.messages
         )
 
-        data: ChatCompletionResponse = response.json()
-        reply = data["choices"][0]["message"]["content"]
-
-        self._add_message("assistant", reply)
+        reply = response.choices[0].message.content or ""
+        self.messages.append({"role": "assistant", "content": reply})
 
         return reply
-
-    def _add_message(self, role: Role, content: str) -> None:
-        self.messages.append(ChatMessage(role=role, content=content))

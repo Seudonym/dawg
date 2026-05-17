@@ -10,7 +10,7 @@ dependencies = [
     "numpy",
     "typer",
     "faster-whisper>=1.2.1",
-    "requests>=2.33.1",
+    "openai>=2.37.0",
 ]
 
 [project.scripts]
