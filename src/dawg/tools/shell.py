@@ -1,5 +1,4 @@
 import subprocess
-from typing import TypedDict
 
 
 def list_files(directory: str) -> str:
