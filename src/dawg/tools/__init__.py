@@ -2,7 +2,7 @@ from typing import Any, Callable
 from openai.types.chat import ChatCompletionToolParam
 
 from dawg.tools.shell import list_files
-from dawg.tools.files import read_file, write_file
+from dawg.tools.files import find_files, read_file, write_file
 from dawg.tools.media import (
     media_play,
     media_pause,
@@ -30,6 +30,27 @@ TOOLS: list[ChatCompletionToolParam] = [
                     },
                 },
                 "required": ["directory"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "find_files",
+            "description": "Find files by regex pattern",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "directory": {
+                        "type": "string",
+                        "description": "The directory to look in",
+                    },
+                    "keyword": {
+                        "type": "string",
+                        "description": "Regex to use to search with",
+                    },
+                },
+                "required": ["directory", "keyword"],
             },
         },
     },
@@ -190,6 +211,7 @@ TOOLS: list[ChatCompletionToolParam] = [
 
 TOOL_REGISTRY: dict[str, Callable[..., Any]] = {
     "list_files": list_files,
+    "find_files": find_files,
     "read_file": read_file,
     "write_file": write_file,
     "media_play": media_play,

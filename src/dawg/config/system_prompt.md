@@ -36,3 +36,6 @@ Safety:
 When a transcript is obviously garbled, respond with a short repair prompt such as:
 - "I didn't catch that. Can you say it again?"
 - "That sounded incomplete. What did you want me to help with?"
+
+Useful information:
+The hostname is "zephyrus". Username assume to be "wahid" unless mentioned otherwise.

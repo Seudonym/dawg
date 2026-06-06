@@ -26,6 +26,7 @@
           ffmpeg
           playerctl
           portaudio
+          ripgrep
 
           gcc
           stdenv.cc.cc.lib
